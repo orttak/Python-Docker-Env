@@ -30,6 +30,7 @@ To ensure 100% compatibility between libraries, a base image will be created fro
 - With the `--rm` option, the container will be automatically deleted when you exit the CMD of this container. You can read details about this in the second scenario.
 - After entering the container's CMD, navigate to the specified path, `cd /home/{userNameInDockerFile}/`, and start installing the libraries.
 - Install a library with `poetry add --lock library_name`
+- Then `poetry update`
 - Install a library with `conda install library_name=version_number`
 - Update environment.yml with `library_name=version_number`
 - Update conda-lock.yml with `conda-lock -f environment.yml --lockfile conda-lock.yml`
