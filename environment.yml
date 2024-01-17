@@ -1,0 +1,10 @@
+name: api
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - mamba
+  - pip
+  - conda-lock==2.5.1
+  - poetry==1.3.1
