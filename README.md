@@ -24,7 +24,7 @@ In this example project, FastAPI will be used. Necessary libraries for FastAPI w
 To ensure 100% compatibility between libraries, a base image will be created from the Dockerfile, and a container will be created from this Docker image. Essential libraries will then be installed using poetry and conda. After these installations, all containers created from this Dockerfile will have the same libraries.
 
 - In CMD, go to your Dockerfile Path
-- `docker build . -t ubuntu22-python310-base-base`
+- `docker build . -t ubuntu22-python310-base`
 - `docker run --rm -it -e SHELL=/bin/bash -v full_path_of_Dockefile_in_your_local:/home/{userNameInDockerFile}/ ubuntu22-python310-base bash `
 - Pay attention to the volumes defined with `-v`, both locally and within the container. The paths you specify are important.
 - With the `--rm` option, the container will be automatically deleted when you exit the CMD of this container. You can read details about this in the second scenario.
