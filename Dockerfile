@@ -113,7 +113,12 @@ RUN echo "Checking for Poetry 'pyproject.toml'..." \
     fi
 
 WORKDIR ${HOME}
+#we can remove installation file
+#RUN rm -r /mnt/${NB_USER}/installation
+
 ### FUTURE DEVELOPMENT ###
 #when we delet below files with RUN rm  ./*yml ./*.toml ./*.lock , we have poetry problem. This command delete poetry env rule somehow.
 # I don't know the reaoson so we keep the file inside the container. We will check it later
 # RUN rm  ./*yml ./*.toml ./*.lock 
+# - we should learn poetry .config file management because after installation it is erased by docker. I create base .config file inside the container
+# save it locally. After that I can start to use poetry with conda because this config prevent installtin new env under poetry.
