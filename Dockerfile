@@ -81,9 +81,9 @@ RUN echo "Installing Mambaforge..." \
     # quite a bit unfortunately - see https://github.com/2i2c-org/infrastructure/issues/2047
     && find ${CONDA_DIR} -follow -type f -name '*.a' -delete
     #conda create -p conda-pkg.yaml -c conda-forge mamba conda-lock poetry='1.3'
-WORKDIR /home/tosca/installation/
+WORKDIR /mnt/${NB_USER}/installation/
 # Copy importan files for installation
-COPY ./*yml ./*.toml ./*.lock ${HOME}/installation/
+COPY ./*yml ./*.toml ./*.lock /mnt/${NB_USER}/installation/
 # -----------------------------------------------------------------------------------------------
 # # Check for conda-lock.yml or environment.yml
 RUN if [ -s "conda-lock.yml" ]; then \
@@ -112,6 +112,7 @@ RUN echo "Checking for Poetry 'pyproject.toml'..." \
         echo "No pyproject.toml found! *Initializing a new Poetry environment*"; \
     fi
 
+WORKDIR ${HOME}
 ### FUTURE DEVELOPMENT ###
 #when we delet below files with RUN rm  ./*yml ./*.toml ./*.lock , we have poetry problem. This command delete poetry env rule somehow.
 # I don't know the reaoson so we keep the file inside the container. We will check it later
