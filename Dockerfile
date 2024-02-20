@@ -3,14 +3,21 @@ FROM ubuntu:22.04
 
 LABEL org.opencontainers.image.source=https://github.com/pangeo-data/pangeo-docker-images
 
-# Setup environment to match variables set by repo2docker as much as possible
+
 # The name of the conda environment into which the requested packages are installed
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+# use same env name as environment.yml
 ENV CONDA_ENV=api \
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+
     # Tell apt-get to not block installs by asking for interactive human input
     DEBIAN_FRONTEND=noninteractive \
-    # Set username, uid and gid (same as uid) of non-root user the container will be run as
-    NB_USER=tosca \
-    NB_UID=1000 \
+    # Set username, uid and gid name and their ID  of non-root user the container will be run as this user
+    # This setting important for folder permission. Read README.md
+    NB_USER=akif \
+    NB_UID=1001 \
+    NB_GROUP=docker \
+    NB_GUID=999 \
     # Use /bin/bash as shell, not the default /bin/sh (arrow keys, etc don't work then)
     SHELL=/bin/bash \
     # Setup locale to be UTF-8, avoiding gnarly hard to debug encoding errors
@@ -19,7 +26,7 @@ ENV CONDA_ENV=api \
     # Install conda in the same place repo2docker does
     CONDA_DIR=/srv/conda \
     CONDA_LOCK_FILE=conda-lock.yml\
-    PYTHON_VERSION=3.10 \
+    PYTHON_VERSION=3.11 \
     ### FUTURE DEVELOPMENT ###
     #when we delet below files with RUN rm  ./*yml ./*.toml ./*.lock , we have poetry problem. This command delete poetry env rule somehow.
     # I don't know the reaoson so we keep the file inside the container. We will check it later
@@ -45,11 +52,13 @@ ENV DASK_ROOT_CONFIG=${CONDA_DIR}/etc
 
 RUN echo "Creating ${NB_USER} user..." \
     # Create a group for the user to be part of, with gid same as uid
-    && groupadd --gid ${NB_UID} ${NB_USER}  \
+    && groupadd --gid ${NB_GUID} ${NB_GROUP}  \
     # Create non-root user, with given gid, uid and create $HOME
-    && useradd --create-home --gid ${NB_UID} --no-log-init --uid ${NB_UID} ${NB_USER} \
+    && useradd --create-home --gid ${NB_GUID} --no-log-init --uid ${NB_UID} ${NB_USER} \
     # Make sure that /srv is owned by non-root user, so we can install things there
-    && chown -R ${NB_USER}:${NB_USER} /srv
+    && chown -R ${NB_USER}:${NB_GROUP} /srv \
+    && chmod g+s /srv
+
 
 # Run conda activate each time a bash shell starts, so users don't have to manually type conda activate
 # Note this is only read by shell, but not by the jupyter notebook - that relies
@@ -66,7 +75,8 @@ RUN echo "Installing Apt-get packages..." \
 # Add TZ configuration - https://github.com/PrefectHQ/prefect/issues/3061
 ENV TZ UTC
 # ========================
-
+USER ${NB_USER}
+WORKDIR /srv
 # Install latest mambaforge in ${CONDA_DIR}
 RUN echo "Installing Mambaforge..." \
     && URL="https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh" \
@@ -81,9 +91,9 @@ RUN echo "Installing Mambaforge..." \
     # quite a bit unfortunately - see https://github.com/2i2c-org/infrastructure/issues/2047
     && find ${CONDA_DIR} -follow -type f -name '*.a' -delete
     #conda create -p conda-pkg.yaml -c conda-forge mamba conda-lock poetry='1.3'
-WORKDIR /mnt/${NB_USER}/installation/
+WORKDIR /srv/${NB_USER}/installation/
 # Copy importan files for installation
-COPY ./*yml ./*.toml ./*.lock /mnt/${NB_USER}/installation/
+COPY ./*yml ./*.toml ./*.lock /srv/${NB_USER}/installation/
 # -----------------------------------------------------------------------------------------------
 # # Check for conda-lock.yml or environment.yml
 RUN if [ -s "conda-lock.yml" ]; then \
@@ -91,12 +101,13 @@ RUN if [ -s "conda-lock.yml" ]; then \
         conda-lock install --name ${CONDA_ENV} ${CONDA_LOCK_FILE}; \
     elif [ -s "environment.yml" ]; then \
         echo "Running command for environment.yml"; \
-        conda env create -f environment.yml --name ${CONDA_ENV} --no-default-packages  \
+        conda env create -f environment.yml --name ${CONDA_ENV} --no-default-packages;  \
     else \
         echo "Conda env is created by system with default ${PYTHON_VERSION}}, mamba,pip and poetry"; \
         conda create -n ${CONDA_ENV} python=${PYTHON_VERSION} mamba pip conda-lock poetry==1.3.1; \
-    fi && \
-    conda clean -yaf \
+        # conda env create -f environment.yml --name ${CONDA_ENV} --no-default-packages;  \
+    fi;
+RUN conda clean -yaf \
     && find /srv/conda -follow -type f -name '*.a' -delete \
     && mamba clean -yaf \
     && find ${CONDA_DIR} -follow -type f -name '*.a' -delete \
@@ -114,7 +125,7 @@ RUN echo "Checking for Poetry 'pyproject.toml'..." \
 
 WORKDIR ${HOME}
 #we can remove installation file
-#RUN rm -r /mnt/${NB_USER}/installation
+#RUN rm -r /srv/${NB_USER}/installation/
 
 ### FUTURE DEVELOPMENT ###
 #when we delet below files with RUN rm  ./*yml ./*.toml ./*.lock , we have poetry problem. This command delete poetry env rule somehow.
