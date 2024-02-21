@@ -9,13 +9,23 @@ Create a base environment with Python 3.11, conda, mamba, pip, conda-lock, and p
 
 In this structure, while managing libraries with poetry, problematic ones with pip can be added via conda. The versions of used libraries can be pinned with conda-lock.
 
+If you only want to work with pipenv, after downloading the system, you can add the lines of the requirements.txt file to the poetry.toml file. We plan to automate the process of importing the requirements.txt file later with a script.
+
 Add a library to poetry.lock with `poetry add --lock library_name`. This automatically updates the poetry.toml file.
 
-If a library is installed with conda, its version is added to the environment.yml file. Then, the conda-lock.yml file is updated with:
+If a library is installed with conda, its version should be added manually by user to the environment.yml file.
+
+`libray_name=version_number`
+
+Then, the conda-lock.yml file is updated with:
 
 `conda-lock -f environment.yml --lockfile conda-lock.yml`
 
+Update your lock file you should delete the old one and create a new one with the same name.
+
 Both conda-lock.yml and poetry.lock files are crucial for the continuity of the new project after the base project, and they are essential for collaboration with team members. While poetry.lock is automatically updated, conda-lock.yml should be manually updated after changes in environment.yml.
+
+### Dockerfile & User and Group Settings
 
 When working with environments in Docker, especially for Linux users, it's crucial to define parameters such as the Conda environment name, Python version, and most importantly, the user's username and user ID (UID), as well as the user's group and group ID (GID). These parameters need to be correctly defined in the Dockerfile to ensure smooth operation, whether on personal computers or servers.
 
@@ -40,10 +50,10 @@ Server Environment
 
 Let's consider a scenario where a workstation is shared among software developers and data scientists. Some parameters related to user permissions are necessary:
 
-    Users can view each other's files but cannot modify them.
-    Not every user has admin or sudo privileges.
-    Every user can access Docker.
-    Admins open specific port ranges by default to allow users to access the machine via SSH, Jupyter, or web applications.
+    - Users can view each other's files but cannot modify them.
+    - Only spesific user has admin or sudo privileges.
+    - Every user can access Docker.
+    - Admins open specific port ranges by default to allow users to access the machine via SSH, Jupyter, or web applications.
 
 The username:group scenario described above emerged as a requirement during the setup of such a scenario. Therefore, it's essential to define the environment variables in the Dockerfile for this scenario.
 
@@ -51,11 +61,12 @@ The username:group scenario described above emerged as a requirement during the 
 
 All users who will use this structure on the workstation must define the environment variables in the Dockerfile according to their parameters.
 
-    Use id to find the user ID and group ID.
-    If there's a common group determined by the admin, its ID should be entered into the system.
-    Then, the Docker structure is created according to this setup.
+    -Open your CMD and use `id` command to find the user ID and group ID.
+    -If there's a common group defined by the admin, this group ID should be entered into the system.
+    (For our use case docker gruop ID is 999 defined by the admin)
+    - Then, the Docker structure is created according to this setup.
 
-Environment.yml Files
+### Environment.yml Files
 
 For example purposes, there are two environment.yml files provided. One is for the base image, and the other is derived from the Pangeo Notebook image settings, named envrionment_geo.yml.
 

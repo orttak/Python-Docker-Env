@@ -8,8 +8,7 @@ LABEL org.opencontainers.image.source=https://github.com/pangeo-data/pangeo-dock
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
 # use same env name as environment.yml
 ENV CONDA_ENV=api \
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
-
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # Tell apt-get to not block installs by asking for interactive human input
     DEBIAN_FRONTEND=noninteractive \
     # Set username, uid and gid name and their ID  of non-root user the container will be run as this user
