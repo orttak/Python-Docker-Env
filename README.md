@@ -1,15 +1,26 @@
 # Python & Docker Base Environment For New Projects
 
-Create a base environment with Python 3.11, conda, mamba, pip, conda-lock, and poetry==1.3.1. This structure allows manipulation of the Docker environment based on the project's needs.
+Goals: With this repostory, you can easily create you Python environemnt for API or Data Science projects. You can use this structure for your personal projects or for your team projects. You can use this structure for your local environment or for your server environment.
+
+- Create Docker image from project's Dockerfile
+- Create Docker container from Docker image
+- Use pyproject.toml and environment.yml files to manage Python libraries with conda and poetry when you create image. When you create image, all libraries will be installed to the image. When you create container from this image, you can use the same libraries in the container.
+- Install Python libraries with conda and poetry inside container. You should go to `/installation` directory and write `add poetry library_name:version` or `conda install library_name:version` also add `library_name:version` into environment.yml file for future.
+
+With this environment we seperate out Python environment from the host system. This is important for the following reasons:
+
+- You can use different Python versions for different projects.
+- You can use different libraries for different projects.
+- You can use different versions of the same library for different projects.
+
+For base environment with Python 3.11, conda, mamba, pip, conda-lock, and poetry==1.3.1. This structure allows manipulation of the Docker environment based on the project's needs.
 
 - Dockerfile
 - environment.yml
 - conda-lock.yml # This file will be empty when base image files are first pulled. It should be created by the admin after creating the environment.
 - pyproject.toml
 
-In this structure, while managing libraries with poetry, problematic ones with pip can be added via conda. The versions of used libraries can be pinned with conda-lock.
-
-If you only want to work with pipenv, after downloading the system, you can add the lines of the requirements.txt file to the poetry.toml file. We plan to automate the process of importing the requirements.txt file later with a script.
+In this structure, you can manage Python libraries with conda and poetry. You can use conda for libraries that are not compatible with poetry, and you can use poetry for libraries that are not compatible with conda. You can also use conda-lock and poetry-lock to pin the versions of the libraries you use.
 
 Add a library to poetry.lock with `poetry add --lock library_name`. This automatically updates the poetry.toml file.
 

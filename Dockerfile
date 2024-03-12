@@ -16,7 +16,7 @@ ENV CONDA_ENV=api \
     NB_USER=akif \
     NB_UID=1001 \
     NB_GROUP=docker \
-    NB_GUID=999 \
+    NB_GUID=1000 \
     # Use /bin/bash as shell, not the default /bin/sh (arrow keys, etc don't work then)
     SHELL=/bin/bash \
     # Setup locale to be UTF-8, avoiding gnarly hard to debug encoding errors
@@ -57,8 +57,11 @@ RUN echo "Creating ${NB_USER} user..." \
     # Make sure that /srv is owned by non-root user, so we can install things there
     && chown -R ${NB_USER}:${NB_GROUP} /srv \
     && chmod g+s /srv
-
-
+#Create installation path. User should go this path when they install new library into container
+# and add
+RUN mkdir /installation \
+    && chown -R ${NB_USER}:${NB_GROUP} /installation \
+    && chmod g+s /installation
 # Run conda activate each time a bash shell starts, so users don't have to manually type conda activate
 # Note this is only read by shell, but not by the jupyter notebook - that relies
 # on us starting the correct `python` process, which we do by adding the notebook conda environment's
@@ -90,9 +93,10 @@ RUN echo "Installing Mambaforge..." \
     # quite a bit unfortunately - see https://github.com/2i2c-org/infrastructure/issues/2047
     && find ${CONDA_DIR} -follow -type f -name '*.a' -delete
     #conda create -p conda-pkg.yaml -c conda-forge mamba conda-lock poetry='1.3'
-WORKDIR /srv/${NB_USER}/installation/
+
+WORKDIR /installation
 # Copy importan files for installation
-COPY ./*yml ./*.toml ./*.lock /srv/${NB_USER}/installation/
+COPY  --chown=${NB_USER}:${NB_GROUP} ./*yml ./*.toml ./*.lock /installation/
 # -----------------------------------------------------------------------------------------------
 # # Check for conda-lock.yml or environment.yml
 RUN if [ -s "conda-lock.yml" ]; then \
@@ -121,7 +125,6 @@ RUN echo "Checking for Poetry 'pyproject.toml'..." \
     else \
         echo "No pyproject.toml found! *Initializing a new Poetry environment*"; \
     fi
-
 WORKDIR ${HOME}
 #we can remove installation file
 #RUN rm -r /srv/${NB_USER}/installation/
