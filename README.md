@@ -121,6 +121,29 @@ You may want to create a local container structure for yourself from this base e
 - After finishing your work with the container, close the CMD window, and check your system's containers with `docker ps -a`. You should see `define_spesific_name_for_container`.
 - If you want to reuse the same container, use `docker start define_spesific_name_for_container && docker exec -it define_spesific_name_for_container bash` to access the CMD of the container.
 
+## Example Scenario-3
+
+Build your docker image or use base image from your system
+
+run `docker run -p 8989:8888 -v $HOME:$HOME  -it --name geo-container  base-geo-image bash`
+You should see container CMD. Run below jupyter lab code.
+
+`jupyter lab --ip 0.0.0.0`
+
+Copy the link and then write server IP instead of 127.0.0.1
+
+It should be like `IP:8989/lab?token=5464654564654646465456`
+
+If you open your CONTAINER again you should run below code.
+
+`docker start geo-container  &&  docker exec -it geo-container bash`
+
+If you want to create Docker IMAGE from your Docker CONTAINER you can use below code
+
+Whenever you update your container with `new python library`, you can update your docker image;
+
+`docker commit container_name  image_name:tag_date`
+
 Source links:
 
 - https://stackoverflow.com/questions/70851048/does-it-make-sense-to-use-conda-poetry
