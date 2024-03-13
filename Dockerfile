@@ -16,7 +16,7 @@ ENV CONDA_ENV=api \
     NB_USER=akif \
     NB_UID=1001 \
     NB_GROUP=docker \
-    NB_GUID=1000 \
+    NB_GUID=999 \
     # Use /bin/bash as shell, not the default /bin/sh (arrow keys, etc don't work then)
     SHELL=/bin/bash \
     # Setup locale to be UTF-8, avoiding gnarly hard to debug encoding errors
