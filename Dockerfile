@@ -48,7 +48,10 @@ ENV PATH=${NB_PYTHON_PREFIX}/bin:${CONDA_DIR}/bin:${PATH}
 # the default of /etc, since the non-root jovyan user can write
 # to ${CONDA_DIR}/etc but not to /etc
 ENV DASK_ROOT_CONFIG=${CONDA_DIR}/etc
-
+#######################################
+#define root user password
+RUN echo "root:root" | chpasswd
+####################################################
 RUN echo "Creating ${NB_USER} user..." \
     # Create a group for the user to be part of, with gid same as uid
     && groupadd --gid ${NB_GUID} ${NB_GROUP}  \
@@ -67,7 +70,6 @@ RUN mkdir /installation \
 # on us starting the correct `python` process, which we do by adding the notebook conda environment's
 # bin to PATH earlier ($NB_PYTHON_PREFIX/bin)
 RUN echo ". ${CONDA_DIR}/etc/profile.d/conda.sh ; conda activate ${CONDA_ENV}" > /etc/profile.d/init_conda.sh
-
 # Install basic apt packages
 RUN echo "Installing Apt-get packages..." \
     && apt-get update --fix-missing > /dev/null \
